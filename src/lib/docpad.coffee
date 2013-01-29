@@ -1,83 +1,145 @@
-# =====================================
-# Requires
+# # Dependency tree
 
-# Necessary
+# The DocPad program, for a large amount at least, inherits and builds upon
+# functionality that is an extension of either node.js core modules, or external
+# packages to bring additional models inside our current instance context.
+
+
+# ## Node core modules
+
+# ### [Path](http://nodejs.org/api/path.html)
+# This module contains utilities for handling and transforming file paths.
+# Almost all these methods perform only string transformations. The file system
+# is not consulted to check whether paths are valid.
 pathUtil = require('path')
-_ = require('underscore')
-caterpillar = require('caterpillar')
-CSON = require('cson')
-balUtil = require('bal-util')
+
+# ### [Utilities](http://nodejs.org/api/util.html)
+# Import the core module utilities so we may easily work with debugging, type
+# checking and logging facilities as well as provide the mean to perform
+# polymorpism my the `utils.inherits` method.
 util = require('util')
+
+
+# ## Vendor: Bevry
+
+# CoffeeScript Object Notation or CSON. It will allow for conversion from JSON
+# to CSON and vice versa. Use it from the command line `./node_modules/.bin` or
+# add that path to your `$PATH`
+# [system environment variable](http://en.wikipedia.org/wiki/PATH_(variable)).
+CSON = require('cson')
+
+# [BA Lupton Util](https://github.com/balupton/bal-util.git) are some essential
+# helper functionalities which aren't found in the core node.js modules.
+# Enhanced events, better control flow, module helpers, file-path or URL
+# resolution plus extra types to check. This is the Bevry swiss army knife.
+balUtil = require('bal-util')
+
+# Simple, intuitive [console logger](https://github.com/bevry/caterpillar).
+# Supports grouping of messages, filtering log levels, colors, times, modules,
+# custom formatters and custom transports.
+caterpillar = require('caterpillar')
+
+
+# ## Other third party module dependencies
+
+# [Underscore](http://underscorejs.org) provides 80-odd functions that support
+# both the usual functional suspects: map, select, invoke — as well as more
+# specialized helpers
+_ = require('underscore')
+
+
+# ## Domain entities
+
+# Create a instance based on the general utility-belt `bal-util` package.
 {EventEmitterEnhanced} = balUtil
 
-# Base
+# Create object instance variables of some of the most basic types we know, base
+# entities of `QueryEngine` which derives from `Backbone`, then a series of
+# DocPad internal (abstract) class instances of `Model`, `View`, `Collections` and
+# `Events`.
+# Finally, we provide a `QueryCollection` object for easy data retrieval.
 {queryEngine,Backbone,Events,Model,Collection,View,QueryCollection} = require(__dirname+'/base')
 
-# Models
+# DocPad currently has two (2) models defined:
+# * FileModel and
+# * DocumentModel
+
+# There has been some experimentation with a slightly different model which
+# would omit for the FileModel, but there we some name resolution conflicts and
+# thus currently remains unchanged here.
+
+# Derives from the `Model` super-type and contains many properties to store file
+# information in it's key / value pairs.
 FileModel = require(__dirname+'/models/file')
+
+# Documents are actually also just files, but with some extra attention for
+# rendering and the option to store meta-data in its headers.
 DocumentModel = require(__dirname+'/models/document')
 
-# Collections
+# Code import of all modules that sit in the `collections/` directory.
 FilesCollection = require(__dirname+'/collections/files')
 ElementsCollection = require(__dirname+'/collections/elements')
 MetaCollection = require(__dirname+'/collections/meta')
 ScriptsCollection = require(__dirname+'/collections/scripts')
 StylesCollection = require(__dirname+'/collections/styles')
 
-# Plugins
+# Plugin loader module, this could essentially be static
 PluginLoader = require(__dirname+'/plugin-loader')
+
+# The abstract type representation to derive plugins from
 BasePlugin = require(__dirname+'/plugin')
 
-# Prototypes
+# Prototypes of array, string and date being altered for better default values
+# or additional properties and methods available to all derived instances.
 require(__dirname+'/prototypes')
 
 
-# =====================================
 # DocPad
 
-###
-The DocPad Class
-It extends the EventSystem from bal-util to provide system events
-It allows us to support multiple instances of docpad at the same time
-###
+# ## The DocPad Class
+
+# It extends the EventSystem from bal-util to provide system events.
+# It allows us to support multiple instances of docpad at the same time.
 class DocPad extends EventEmitterEnhanced
 
-	# =================================
-	# Variables
 
-	# ---------------------------------
-	# Modules
+	# ### Local member variables
 
-	# Base
+	# Basic building blocks of our event-driven MVQC architecture
 	Events: Events
 	Model: Model
 	Collection: Collection
 	View: View
 	QueryCollection: QueryCollection
 
-	# Models
+	# Locally, we carry along the models of file and document data.
 	FileModel: FileModel
 	DocumentModel: DocumentModel
 
-	# Collections
+	# Internal lists and collections of essential document blocks.
 	FilesCollection: FilesCollection
 	ElementsCollection: ElementsCollection
 	MetaCollection: MetaCollection
 	ScriptsCollection: ScriptsCollection
 	StylesCollection: StylesCollection
 
-	# Plugins
+	# Plugins can rely upon the `PluginLoader` to exist
 	PluginLoader: PluginLoader
+
+	# and load the `BasePlugin`
 	BasePlugin: BasePlugin
 
 
-	# ---------------------------------
-	# Instances
+	# ## Application instances
 
-	# Growl
+	# ### Growl
+	# Growl offers you complete control over which notifications are shown and how
+	# they are displayed.
 	growlInstance: null
 	getGrowlInstance: ->
-		# Create
+
+		# If we don't have any Growl instance running, we pull in its configuration
+		# and try to install the node package.
 		if @growlInstance? is false
 			if @getConfig().growl
 				try
@@ -87,16 +149,24 @@ class DocPad extends EventEmitterEnhanced
 			else
 				@growlInstance = false
 
-		# Return
 		return @growlInstance
 
-	# MixPanel
+	# ### [Mixpanel](https://github.com/carlsverre/mixpanel-node)
+	# Mixpanel is a real-time analytics service that helps companies understand
+	# how users interact with web applications.
 	mixpanelInstance: null
 	getMixpanelInstance: ->
-		# Create
+
+		# If we don't have any instance of Mixpanel we can use
 		if @mixpanelIsntance? is false
+
+			# Fetch configuration settings
 			config = @getConfig()
+
+			# Set instances of report statistics and tokens to config.
 			{reportStatistics,mixpanelToken} = config
+
+			# If we have reports or tokens to process
 			if reportStatistics and mixpanelToken
 				try
 					@mixpanelInstance = require('mixpanel').init(mixpanelToken)
@@ -108,7 +178,7 @@ class DocPad extends EventEmitterEnhanced
 		# Return
 		return @mixpanelInstance
 
-	# Airbrake
+	## Airbrake
 	airbrakeInstance: null
 	getAirbrakeInstance: ->
 		# Create
