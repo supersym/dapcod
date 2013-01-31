@@ -1,0 +1,174 @@
+
+# # Suggestions
+
+# Context: DocPad source compilation, building, publishing.
+
+# __Purpose:__ Add additional code to support publishing source code comments
+# and markup as documentation in HTML by using one, or several of tools
+# available. This allows for a bare source code file, and renamed variant file
+# names to support multiple views on the source.
+
+# ## Constants
+
+# __Suggestion:__ Additional documentation publishing directory as 'constant'
+# variable on top of the currently available ones.
+
+WINDOWS = process.platform.indexOf('win') is 0
+NODE    = process.execPath
+NPM     = if WINDOWS then process.execPath.replace('node.exe','npm.cmd') else 'npm'
+EXT     = (if WINDOWS then '.cmd' else '')
+APP     = process.cwd()
+BIN     = "#{APP}/node_modules/.bin"
+CAKE    = "#{BIN}/cake#{EXT}"
+COFFEE  = "#{BIN}/coffee#{EXT}"
+OUT     = "#{APP}/out"
+SRC     = "#{APP}/src"
+TEST    = "#{APP}/test"
+
+# e.g. root documentation path =>
+DOC 		= "#{APP}/man"
+
+# e.g. literate documentation tool =>
+GROC		= "#{BIN}/groc#{EXT}"
+
+# e.g. object-oriented documentation tool =>
+CROJS 	= "#{BIN}/crojsdoc#{EXT}"
+
+# ## Dependencies
+
+# __No changes in Cakefile dependencies__
+
+# We do add to packages.json the documentation tools `groc` and `crojsdoc`
+# devDependencies.
+# ```
+# "groc": "~0.3.2",
+# "crojsdoc": "~0.4.0"
+# ```
+
+pathUtil = require('path')
+{exec,spawn} = require('child_process')
+
+safe = (next,fn) ->
+	return (err) ->
+		return next(err)  if err
+		return fn()
+
+
+# ## Actions
+
+# Asynchronous functions, names as verbs
+
+# __Suggestion:__ Additional path addition for documentation on the action to
+# clean, we remove all
+
+clean = (opts,next) ->
+	(next = opts; opts = {})  unless next?
+	args = [
+		'-Rf'
+		OUT
+
+		# e.g. delete full dir =>
+		DOC
+
+		pathUtil.join(APP,'node_modules')
+		pathUtil.join(APP,'*out')
+		pathUtil.join(APP,'*log')
+		pathUtil.join(TEST,'node_modules')
+		pathUtil.join(TEST,'*out')
+		pathUtil.join(TEST,'*log')
+	]
+	spawn('rm', args, {stdio:'inherit',cwd:APP}).on('exit',next)
+
+compile = (opts,next) ->
+	(next = opts; opts = {})  unless next?
+	spawn(COFFEE, ['-bco', OUT, SRC], {stdio:'inherit',cwd:APP}).on('exit',next)
+
+watch = (opts,next) ->
+	(next = opts; opts = {})  unless next?
+	spawn(COFFEE, ['-bwco', OUT, SRC], {stdio:'inherit',cwd:APP}).on('exit',next)
+
+install = (opts,next) ->
+	(next = opts; opts = {})  unless next?
+	spawn(NPM, ['install'], {stdio:'inherit',cwd:APP}).on 'exit', safe next, ->
+		spawn(NPM, ['install'], {stdio:'inherit',cwd:TEST}).on('exit',next)
+
+reset = (opts,next) ->
+	(next = opts; opts = {})  unless next?
+	clean opts, safe next, -> install opts, safe next, -> compile opts, next
+
+setup = (opts,next) ->
+	(next = opts; opts = {})  unless next?
+	install opts, safe next, ->
+		compile opts, next
+
+test = (opts,next) ->
+	(next = opts; opts = {})  unless next?
+	args = []
+	args.push("--debug-brk")  if opts.debug
+	args.push("#{OUT}/test/everything.test.js")
+	args.push("--joe-reporter=list")
+	spawn(NODE, args, {stdio:'inherit',cwd:APP}, next)
+
+finish = (err) ->
+	throw err  if err
+	console.log('OK')
+
+# __Suggestion:__ Additional action to use for publishing source documentation,
+# this allows using boolean flags to choose between tools/styles of documentation
+# and publishing.
+
+document = (opts,next) ->
+	(next = opts; opts = {})  unless next?
+
+	# We are using `.groc.json` for our configuration of the literate documentation tool
+	# Optionally you can enter arguments here
+	args = []
+
+	# Spawn literate tool if so desired
+	spawn(GROC, args, {stdio:'inherit',cwd:APP}).on('exit',next)  if opts.literate
+
+	# Or the object-oriented API documentation using @tags
+	spawn(CROJS, "-o #{DOC}/crojs", {stdio:'inherit',cwd:APP}).on('exit',next)  if opts.oop
+
+
+# ## Commands
+# Cake tasks, names as verbs that call Actions
+# These act as as single argumentless sub-commands which means 1 for each variety.
+
+task 'clean', 'clean up instance', ->
+	clean finish
+
+task 'compile', 'compile our files', ->
+	compile finish
+
+task 'dev', 'watch and recompile our files', ->
+	watch finish
+
+task 'watch', 'watch and recompile our files', ->
+	watch finish
+
+task 'install', 'install dependencies', ->
+	install finish
+
+task 'reset', 'reset instance', ->
+	reset finish
+
+task 'setup', 'setup for development', ->
+	setup finish
+
+task 'test', 'run our tests', ->
+	test finish
+
+task 'test-debug', 'run our tests in debug mode', ->
+	test {debug:true}, finish
+
+task 'test-prepare', 'prepare out tests', ->
+	setup finish
+
+# e.g. literate tool much like Docco but better =>
+task 'document-literate', '*NEW* literate programming documentation from source code', ->
+	publish {literate:true}, finish
+
+# e.g. class/object-oriented tool much like JSDoc but better =>
+task 'document-object', '*NEW* object-oriented / API documentation from source code', ->
+	publish {oop:true}, finish

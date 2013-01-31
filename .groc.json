@@ -1,0 +1,6 @@
+  {
+    "glob": [ "Cake*", "src" ],
+    "except": [ "node_modules" ],
+    "out": "man/literate",
+    "strip": []
+  }
