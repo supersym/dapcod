@@ -1,0 +1,11 @@
+
+# vim: ft=coffee
+
+name: "docpad-core-logging"
+version: "0.0.1"
+private: true
+dependencies:
+  autorequire: "*"
+  #rlog: "git://github.com/jbrisbin/node-rlog.git"
+
+

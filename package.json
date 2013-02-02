@@ -1,0 +1,7 @@
+{
+  "name": "docpad-core-logging",
+  "version": "0.0.1",
+  "dependencies": {
+    "rlog": "git://github.com/jbrisbin/node-rlog.git"
+  }
+}
