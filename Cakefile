@@ -1,1 +1,1 @@
-Cakefile_Suggestion_01_Document
+Cakefile_Suggestion_01_Document.coffee

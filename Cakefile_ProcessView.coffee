@@ -1,31 +1,18 @@
 
-# # Development View
+# # Process View
 
-# CoffeeScript is a language that compiles into JavaScript and this adds another layer to your development process:
-# [compile time](http://en.wikipedia.org/wiki/Compile_time). Having to manually compile CoffeeScript files whenever they
-# change quickly gets old, thats why there are
-# [several build tools available](https://github.com/jashkenas/coffee- # script/wiki/Build-tools).
+# ## Variables acting as constants
 
-# CoffeeScript also has a native form of build process support which can make the development cycle somewhat smoother.
-# This is what DocPad currently uses.
-
-# Cake is a super simple build system along the lines of Make and Rake. The
-# library is bundled with the coffee-script npm package, and available via an
-# executable called `cake`.
-
-# -------
-
-# First we define a few variables. Keep in mind, JavaScript is a dynamically typed language and CoffeeScript does not
-# add any type checking features during compile time. However, you may find these variables to appear as constants, due
-# to C++ and Java, where it is a well established naming convention. In these languages constants should be written all
-# uppercase, with underscores to separate words. Their use, at the top of the Cakefile however, implies that these
-# variables are treated as constants. Although their values are initially set in an dynamic way (by use of other
-# variables, methods return values) or rather literal with some substring replacement, it probably means that their
-# values are not overwritten elsewhere.
-
+# Check the currently running process to find out if the platform is MS Windows.
 WINDOWS = process.platform.indexOf('win') is 0
+
+# Run the node.js executable
 NODE    = process.execPath
+
+# A generic way of running the Node package manager on all platforms.
 NPM     = if WINDOWS then process.execPath.replace('node.exe','npm.cmd') else 'npm'
+
+
 EXT     = (if WINDOWS then '.cmd' else '')
 APP     = process.cwd()
 BIN     = "#{APP}/node_modules/.bin"
@@ -37,30 +24,6 @@ TEST    = "#{APP}/test"
 
 
 
-
-# You can define tasks using CoffeeScript in this file called Cakefile. Cake will
-# pick these up, and can be invoked by running `cake [task] [options]` from within
-# the directory. To print a list of all the tasks and options, just type cake.
-
-# Tasks are defined using the `task()` function, passing a name, optional
-# description and callback function.
-
-# This file was originally created by Benjamin Lupton <b@lupton.cc>
-# (http://balupton.com) and is currently licensed under the Creative Commons
-# Zero (http://creativecommons.org/publicdomain/zero/1.0/) making it public
-# domain so you can do whatever you wish with it without worry (you can even
-# remove this notice!)
-#
-# If you change something here, be sure to reflect the changes in:
-# - the scripts section of the package.json file
-# - the .travis.yml file
-
-
-
-
-
-# -----------------
-# Requires
 
 pathUtil = require('path')
 {exec,spawn} = require('child_process')

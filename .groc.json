@@ -1,6 +1,6 @@
   {
-    "glob": [ "Cake*", "src" ],
+    "glob": [ "*.coffee", "src" ],
     "except": [ "node_modules" ],
-    "out": "man/literate",
+    "out": "man/groc",
     "strip": []
   }

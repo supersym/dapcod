@@ -151,7 +151,7 @@ document = function(opts, next) {
     spawn(GROC, args, {
       stdio: 'inherit',
       cwd: APP
-    }).on('exit', next);
+    }, next);
   }
   if (opts.oop) {
     return spawn(CROJS, "-o " + DOC + "/crojs", {
@@ -204,13 +204,13 @@ task('test-prepare', 'prepare out tests', function() {
 });
 
 task('document-literate', '*NEW* literate programming documentation from source code', function() {
-  return publish({
+  return document({
     literate: true
   }, finish);
 });
 
 task('document-object', '*NEW* object-oriented / API documentation from source code', function() {
-  return publish({
+  return document({
     oop: true
   }, finish);
 });

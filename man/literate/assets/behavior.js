@@ -14,13 +14,110 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
           "singleLineComment": ["#"],
           "name": "CoffeeScript"
         },
-        "sourcePath": "/data/store/a/projects/active/docpad/Cakefile",
-        "projectPath": "Cakefile",
-        "targetPath": "Cakefile",
-        "title": "Cakefile"
+        "sourcePath": "/data/store/a/projects/active/docpad/Cakefile_DevelopmentView.coffee",
+        "projectPath": "Cakefile_DevelopmentView.coffee",
+        "targetPath": "Cakefile_DevelopmentView",
+        "title": "Cakefile_DevelopmentView"
       },
       "depth": 1,
-      "outline": []
+      "outline": [
+        {
+          "type": "heading",
+          "data": {
+            "level": 1,
+            "title": "Development View",
+            "slug": "development-view"
+          },
+          "depth": 1
+        }
+      ]
+    }, {
+      "type": "file",
+      "data": {
+        "language": {
+          "nameMatchers": [".coffee", "Cakefile"],
+          "pygmentsLexer": "coffee-script",
+          "singleLineComment": ["#"],
+          "name": "CoffeeScript"
+        },
+        "sourcePath": "/data/store/a/projects/active/docpad/Cakefile_ProcessView.coffee",
+        "projectPath": "Cakefile_ProcessView.coffee",
+        "targetPath": "Cakefile_ProcessView",
+        "title": "Cakefile_ProcessView"
+      },
+      "depth": 1,
+      "outline": [
+        {
+          "type": "heading",
+          "data": {
+            "level": 1,
+            "title": "Development View",
+            "slug": "development-view"
+          },
+          "depth": 1
+        }
+      ]
+    }, {
+      "type": "file",
+      "data": {
+        "language": {
+          "nameMatchers": [".coffee", "Cakefile"],
+          "pygmentsLexer": "coffee-script",
+          "singleLineComment": ["#"],
+          "name": "CoffeeScript"
+        },
+        "sourcePath": "/data/store/a/projects/active/docpad/Cakefile_Suggestion_01_Document.coffee",
+        "projectPath": "Cakefile_Suggestion_01_Document.coffee",
+        "targetPath": "Cakefile_Suggestion_01_Document",
+        "title": "Cakefile_Suggestion_01_Document"
+      },
+      "depth": 1,
+      "outline": [
+        {
+          "type": "heading",
+          "data": {
+            "level": 1,
+            "title": "Suggestions",
+            "slug": "suggestions"
+          },
+          "depth": 1,
+          "children": [
+            {
+              "type": "heading",
+              "data": {
+                "level": 2,
+                "title": "Constants",
+                "slug": "constants"
+              },
+              "depth": 2
+            }, {
+              "type": "heading",
+              "data": {
+                "level": 2,
+                "title": "Dependencies",
+                "slug": "dependencies"
+              },
+              "depth": 2
+            }, {
+              "type": "heading",
+              "data": {
+                "level": 2,
+                "title": "Actions",
+                "slug": "actions"
+              },
+              "depth": 2
+            }, {
+              "type": "heading",
+              "data": {
+                "level": 2,
+                "title": "Commands",
+                "slug": "commands"
+              },
+              "depth": 2
+            }
+          ]
+        }
+      ]
     }
   ];
 

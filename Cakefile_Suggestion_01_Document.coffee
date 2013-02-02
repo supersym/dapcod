@@ -113,7 +113,7 @@ finish = (err) ->
 	throw err  if err
 	console.log('OK')
 
-# __Suggestion:__ Additional action to use for publishing source documentation,
+# *Suggestion:* Additional action to use for publishing source documentation,
 # this allows using boolean flags to choose between tools/styles of documentation
 # and publishing.
 
@@ -125,15 +125,20 @@ document = (opts,next) ->
 	args = []
 
 	# Spawn literate tool if so desired
-	spawn(GROC, args, {stdio:'inherit',cwd:APP}).on('exit',next)  if opts.literate
+	spawn(GROC, args, { stdio:'inherit',cwd:APP}, next)  if opts.literate
 
 	# Or the object-oriented API documentation using @tags
-	spawn(CROJS, "-o #{DOC}/crojs", {stdio:'inherit',cwd:APP}).on('exit',next)  if opts.oop
+	spawn(CROJS, [ "-o #{DOC}/crojs" ], {stdio:'inherit',cwd:APP}, next)  if opts.oop
+
+# ---------
 
 
 # ## Commands
 # Cake tasks, names as verbs that call Actions
 # These act as as single argumentless sub-commands which means 1 for each variety.
+
+
+
 
 task 'clean', 'clean up instance', ->
 	clean finish
@@ -167,8 +172,8 @@ task 'test-prepare', 'prepare out tests', ->
 
 # e.g. literate tool much like Docco but better =>
 task 'document-literate', '*NEW* literate programming documentation from source code', ->
-	publish {literate:true}, finish
+	document {literate:true}, finish
 
 # e.g. class/object-oriented tool much like JSDoc but better =>
 task 'document-object', '*NEW* object-oriented / API documentation from source code', ->
-	publish {oop:true}, finish
+	document {oop:true}, finish
