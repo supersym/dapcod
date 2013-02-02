@@ -1,0 +1,24 @@
+This is just a simple test
+==========================
+
+That we may have found ourselves
+
+  console.log "a working literate coffeescript"
+
+This is automatically triggered by the indent
+
+So for the rest we can use any other text as comments.
+
+  class TestMeh
+
+    constructor : () ->
+      console.log "Hello world"
+
+Now we can create a instance
+
+  t1 = new TestMeh
+  console.log "All done?"
+
+Finally we can close the story.
+
+
