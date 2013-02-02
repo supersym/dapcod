@@ -1,0 +1,5 @@
+
+
+dependencies:
+  madge: "*"
+  sandbox: "*"

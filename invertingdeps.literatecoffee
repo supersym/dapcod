@@ -1,0 +1,44 @@
+So, how can event-driven code save us from dependency hell? Let’s go back to that monster example from the start of the article. We want it to do a bunch of things when it gets hit. A straightforward approach would be to write code like this:
+
+  class Monster
+    constructor: -> @hp = 1000
+    hit: (damage) ->
+      @hp -= damage
+      if @hp > 0
+        audio.play 'monster_hit'
+        video.show 'monster_hit'
+        player.score += 5
+      else
+        audio.play 'monster_die'
+        video.show 'monster_die'
+        player.score += 100
+        world.remove this
+
+But look at all the dependencies we have here: audio, video, player, world... That leads to two problems: one is that we have to get references to those objects from every single Monster-like module, leading to lots of code duplication. The other is, how do we test Monster::hit? Surely we don’t want a bunch of monster noises to erupt every time we run our game’s suite of unit tests!
+
+One common approach would be dependency injection, providing some way for Monster to get mock instances of audio and video that have the same properties as the real instances but none of the side effects. Another would be to take advantage of JavaScript’s dynamic nature by directly manipulating the prototypes of objects like audio and video, rendering them inert in test mode. A third would be to special-case those calls with a conditional, something like unless testMode.Of course, none of these workarounds help with the code duplication that comes from explicitly spelling out all dependencies.
+
+What if, instead, we use an event to separate our internal logic code from everything else?
+
+  class Monster extends require('events').EventEmitter
+    constructor: -> @hp = 1000
+    hit: (damage) ->
+      @hp -= damage
+      if @hp > 0
+        @emit 'hit'
+      else
+        @emit 'die'
+
+Now all we have to do is listen for that event somewhere. Let’s say that the world object is responsible for spawning monsters, and when it does, it emits a new_monster event with the new Monster as an argument. Then in the audio object, we can add:
+
+`  world.on 'new_monster', (monster) =>
+`    monster.on 'hit', => @play 'monster_hit'
+`    monster.on 'die', => @play 'monster_die'
+
+The video code would look much the same. And the player code would look like:
+
+`  world.on 'new_monster', (monster) =>
+`    monster.on 'hit', => @score += 5
+`    monster.on 'die', => @score += 100
+
+In many ways, this way of organizing code is more logical. It allows the Monster class to stay more “pure.” To unit test it, all we have to do is create it without emitting the usual new_monster event. And check out how much nicer our dependency graph has become!

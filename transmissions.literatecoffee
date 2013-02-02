@@ -1,0 +1,48 @@
+Emissions As Transmissions
+==========================
+
+Node.js is said to be event-driven because it has no threads. Instead, every time a script has finished running, Node checks if any events have been queued (via a method like setTimeout or readFile), and then runs one of the queued functions. The result is often more efficient and less bug-prone code than in other languages where several pieces of code are run “simultaneously” via threading.
+
+But the word “event” has another meaning in Node.js in the form of the EventEmitter API (Full documentation available here.) An EventEmitter can “emit” any kind of event (identified by a string), and when it does, all matching “listeners” (callbacks) are immediately triggered. (If you’re familiar with jQuery or Backbone.js, think of emit as trigger and addListener/on as bind.) EventEmitter is a “class” in the JavaScript sense of being a function with a prototype object attached. That means that you can create EventEmitter instances:
+
+  {EventEmitter} = require 'events'
+  emitter = new EventEmitter
+  emitter.on 'foo', -> console.log 'bar'
+  emitter.emit 'foo'
+
+Or you can make your own EventEmitter subclasses:
+
+  {EventEmitter} = require 'events'
+  class Rooster extends EventEmitter
+    constructor: ->
+      @on 'wake', -> console.log 'COCKADOODLEDOO!'
+      @on 'sleep', -> console.log 'zzzzzzz'
+  (foghorn = new Rooster).emit 'wake' # COCKADOODLEDOO!
+  (foghorn = new Rooster).emit 'sleep' # zzzzzz!
+
+Or you can “mix in” EventEmitter’s prototype to add its functionality to an existing object:
+
+  sprinkler = waterSupply: 2
+  sprinkler[k] = func for k, func of EventEmitter.prototype
+  sprinkler.on 'fire', ->
+    if @waterSupply > 0
+      @waterSupply--; console.log 'fire extinguished'
+    else
+      console.log 'good luck...'
+  sprinkler.emit 'fire' # fire extinguished
+  sprinkler.emit 'fire' # fire extinguished
+  sprinkler.emit 'fire' # good luck...
+
+Notice that while emit sounds like something that an object does on its own, the method is public and can be called from anywhere. This is key—anything you can do with a function call, you can do by emitting an event instead. (OK, so events can’t return a value, but this is JavaScript; use a callback!) You can pass arguments after the event name:
+
+  cave = new EventEmitter
+  cave.on 'echo', -> console.log x for x in arguments
+  cave.emit 'echo', 'Hello?' # Hello?
+
+But what makes the events even more powerful than ordinary function calls is that you can “stack” multiple listeners on the same event. The listeners are triggered in the same order they were attached in:
+
+  codeMonkey = new EventEmitter
+  codeMonkey.on 'wake', -> console.log 'get up, get coffee'
+  codeMonkey.on 'wake', -> console.log 'go to job'
+  codeMonkey.on 'wake', -> console.log 'have meeting'
+  codeMonkey.emit 'wake' # get up, get coffee; go to job; have meeting
