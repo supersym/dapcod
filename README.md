@@ -51,6 +51,17 @@ else
 
 ```
 
-Which result
+Even easier, since we're talking server instances here anyway:
 
+```coffee-script
+_ = require 'underscore'
+$ = require('docpad').EventModel
+
+# ... stuff
+
+$.fatal if condition
+$.intro
+
+
+```
 
