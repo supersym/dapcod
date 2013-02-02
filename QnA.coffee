@@ -1,0 +1,3 @@
+
+data = require './questions.cson'
+

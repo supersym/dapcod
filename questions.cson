@@ -1,0 +1,22 @@
+
+exports.questionnaire = {
+  
+  Question1:
+    sentence: "Please select your profile:"
+    preconditions:
+      "required": true
+    typeof: 1
+    choices: [
+      Answer1:
+        answer: "plugin"
+        describes: "I want to develop on plugins for DocPad"
+        actions:
+          R1: null
+      ]
+
+
+  Q2:
+    question: "What is the name of this plugin?"
+    condition: "Q1.A1"
+
+}
