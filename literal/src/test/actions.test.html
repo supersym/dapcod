@@ -1,0 +1,134 @@
+<!DOCTYPE html><html lang="en"><head><title>src/test/actions.test</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../"><meta name="groc-document-path" content="src/test/actions.test"><meta name="groc-project-path" content="src/test/actions.test.coffee"><link rel="stylesheet" type="text/css" media="all" href="../../assets/style.css"><script type="text/javascript" src="../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/test/actions.test.coffee</div></div><div id="document"><div class="segment"><div class="comments"><div class="wrapper"><p>RequirestestServer</p></div></div><div class="code"><div class="wrapper"><span class="nv">request = </span><span class="nx">require</span><span class="p">(</span><span class="s">&#39;request&#39;</span><span class="p">)</span>
+<span class="nv">balUtil = </span><span class="nx">require</span><span class="p">(</span><span class="s">&#39;bal-util&#39;</span><span class="p">)</span>
+<span class="nv">DocPad = </span><span class="nx">require</span><span class="p">(</span><span class="nx">__dirname</span><span class="o">+</span><span class="s">&#39;/../lib/docpad&#39;</span><span class="p">)</span>
+<span class="nv">chai = </span><span class="nx">require</span><span class="p">(</span><span class="s">&#39;chai&#39;</span><span class="p">)</span>
+<span class="nv">expect = </span><span class="nx">chai</span><span class="p">.</span><span class="nx">expect</span>
+<span class="nv">joe = </span><span class="nx">require</span><span class="p">(</span><span class="s">&#39;joe&#39;</span><span class="p">)</span>
+<span class="nv">_ = </span><span class="nx">require</span><span class="p">(</span><span class="s">&#39;underscore&#39;</span><span class="p">)</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><hr />
+
+<p>Configuration</p></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Vars</p></div></div><div class="code"><div class="wrapper"><span class="nv">port = </span><span class="mi">9779</span>
+<span class="nv">rootPath = </span><span class="nx">__dirname</span><span class="o">+</span><span class="s">&#39;/../../test&#39;</span>
+<span class="nv">srcPath = </span><span class="nx">rootPath</span><span class="o">+</span><span class="s">&#39;/src&#39;</span>
+<span class="nv">outPath = </span><span class="nx">rootPath</span><span class="o">+</span><span class="s">&#39;/out&#39;</span>
+<span class="nv">outExpectedPath = </span><span class="nx">rootPath</span><span class="o">+</span><span class="s">&#39;/out-expected&#39;</span>
+<span class="nv">baseUrl = </span><span class="s">&quot;http://localhost:</span><span class="si">#{</span><span class="nx">port</span><span class="si">}</span><span class="s">&quot;</span>
+<span class="nv">testWait = </span><span class="mi">1000</span><span class="o">*</span><span class="mi">60</span><span class="o">*</span><span class="mi">5</span>  <span class="c1"># five minutes</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Configure DocPad</p></div></div><div class="code"><div class="wrapper"><span class="nv">docpadConfig =</span>
+  <span class="nv">growl: </span><span class="kc">false</span>
+  <span class="nv">port: </span><span class="nx">port</span>
+  <span class="nv">rootPath: </span><span class="nx">rootPath</span>
+  <span class="nv">logLevel: </span><span class="k">if</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">TRAVIS_NODE_VERSION</span><span class="o">?</span> <span class="k">then</span> <span class="mi">7</span> <span class="k">else</span> <span class="mi">5</span>
+  <span class="nv">skipUnsupportedPlugins: </span><span class="kc">false</span>
+  <span class="nv">catchExceptions: </span><span class="kc">false</span>
+  <span class="nv">environments:</span>
+    <span class="nv">development:</span>
+      <span class="nv">a: </span><span class="s">&#39;instanceConfig&#39;</span>
+      <span class="nv">b: </span><span class="s">&#39;instanceConfig&#39;</span>
+      <span class="nv">templateData:</span>
+        <span class="nv">a: </span><span class="s">&#39;instanceConfig&#39;</span>
+        <span class="nv">b: </span><span class="s">&#39;instanceConfig&#39;</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Fail on an uncaught error</p></div></div><div class="code"><div class="wrapper"><span class="nx">process</span><span class="p">.</span><span class="nx">on</span> <span class="s">&#39;uncaughtException&#39;</span><span class="p">,</span> <span class="nf">(err) -&gt;</span>
+  <span class="k">throw</span> <span class="nx">err</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Local globals</p></div></div><div class="code"><div class="wrapper"><span class="nv">docpad = </span><span class="kc">null</span>
+<span class="nv">logger = </span><span class="kc">null</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><hr />
+
+<p>Tests</p></div></div><div class="code"><div class="wrapper"><span class="nx">joe</span><span class="p">.</span><span class="nx">suite</span> <span class="s">&#39;docpad-actions&#39;</span><span class="p">,</span> <span class="nf">(suite,test) -&gt;</span>
+
+  <span class="nx">test</span> <span class="s">&#39;create&#39;</span><span class="p">,</span> <span class="nf">(done) -&gt;</span>
+    <span class="nv">docpad = </span><span class="nx">DocPad</span><span class="p">.</span><span class="nx">createInstance</span> <span class="nx">docpadConfig</span><span class="p">,</span> <span class="nf">(err) -&gt;</span>
+      <span class="nx">done</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+
+  <span class="nx">test</span> <span class="s">&#39;config&#39;</span><span class="p">,</span> <span class="nf">(done) -&gt;</span>
+    <span class="nv">expected = </span><span class="p">{</span><span class="nx">a</span><span class="o">:</span><span class="s">&#39;instanceConfig&#39;</span><span class="p">,</span><span class="nx">b</span><span class="o">:</span><span class="s">&#39;instanceConfig&#39;</span><span class="p">,</span><span class="nx">c</span><span class="o">:</span><span class="s">&#39;websiteConfig&#39;</span><span class="p">}</span>
+
+    <span class="nv">config = </span><span class="nx">docpad</span><span class="p">.</span><span class="nx">getConfig</span><span class="p">()</span>
+    <span class="p">{</span><span class="nx">a</span><span class="p">,</span><span class="nx">b</span><span class="p">,</span><span class="nx">c</span><span class="p">}</span> <span class="o">=</span> <span class="nx">config</span>
+    <span class="nx">expect</span><span class="p">({</span><span class="nx">a</span><span class="p">,</span><span class="nx">b</span><span class="p">,</span><span class="nx">c</span><span class="p">}).</span><span class="nx">to</span><span class="p">.</span><span class="nx">deep</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">expected</span><span class="p">)</span>
+
+    <span class="nv">templateData = </span><span class="nx">docpad</span><span class="p">.</span><span class="nx">getTemplateData</span><span class="p">()</span>
+    <span class="p">{</span><span class="nx">a</span><span class="p">,</span><span class="nx">b</span><span class="p">,</span><span class="nx">c</span><span class="p">}</span> <span class="o">=</span> <span class="nx">templateData</span>
+    <span class="nx">expect</span><span class="p">({</span><span class="nx">a</span><span class="p">,</span><span class="nx">b</span><span class="p">,</span><span class="nx">c</span><span class="p">}).</span><span class="nx">to</span><span class="p">.</span><span class="nx">deep</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">expected</span><span class="p">)</span>
+
+    <span class="nx">done</span><span class="p">()</span>
+
+  <span class="nx">test</span> <span class="s">&#39;clean&#39;</span><span class="p">,</span> <span class="nf">(done) -&gt;</span>
+    <span class="nx">docpad</span><span class="p">.</span><span class="nx">action</span> <span class="s">&#39;clean&#39;</span><span class="p">,</span> <span class="nf">(err) -&gt;</span>
+      <span class="nx">done</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+
+  <span class="nx">test</span> <span class="s">&#39;install&#39;</span><span class="p">,</span> <span class="nf">(done) -&gt;</span>
+    <span class="nx">docpad</span><span class="p">.</span><span class="nx">action</span> <span class="s">&#39;install&#39;</span><span class="p">,</span> <span class="nf">(err) -&gt;</span>
+      <span class="nx">done</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+
+  <span class="nx">suite</span> <span class="s">&#39;generate&#39;</span><span class="p">,</span> <span class="nf">(suite,test) -&gt;</span>
+    <span class="nx">test</span> <span class="s">&#39;action&#39;</span><span class="p">,</span> <span class="nf">(done) -&gt;</span>
+      <span class="nx">docpad</span><span class="p">.</span><span class="nx">action</span> <span class="s">&#39;generate&#39;</span><span class="p">,</span> <span class="nf">(err) -&gt;</span>
+        <span class="nx">done</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+
+    <span class="nx">suite</span> <span class="s">&#39;results&#39;</span><span class="p">,</span> <span class="nf">(suite,test) -&gt;</span>
+      <span class="nv">testMarkup = </span><span class="nf">(key,actual,expected) -&gt;</span>
+        <span class="nx">test</span> <span class="nx">key</span><span class="p">,</span> <span class="nf">-&gt;</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>trim whitespace, to avoid util conflicts between node versions and other oddities</p></div></div><div class="code"><div class="wrapper">          <span class="nv">actualString = </span><span class="nx">actual</span><span class="p">.</span><span class="nx">trim</span><span class="p">().</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/\s+/g</span><span class="p">,</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+          <span class="nv">expectedString = </span><span class="nx">expected</span><span class="p">.</span><span class="nx">trim</span><span class="p">().</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/\s+/g</span><span class="p">,</span><span class="s">&#39;&#39;</span><span class="p">)</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>check equality</p></div></div><div class="code"><div class="wrapper">          <span class="nx">expect</span><span class="p">(</span><span class="nx">actualString</span><span class="p">).</span><span class="nx">to</span><span class="p">.</span><span class="nx">be</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">expectedString</span><span class="p">)</span>
+
+      <span class="nx">test</span> <span class="s">&#39;same files&#39;</span><span class="p">,</span> <span class="nf">(done) -&gt;</span>
+        <span class="nx">balUtil</span><span class="p">.</span><span class="nx">scandir</span><span class="p">(</span>
+          <span class="nx">path</span><span class="o">:</span><span class="nx">outPath</span>
+          <span class="nv">readFiles: </span><span class="kc">true</span>
+          <span class="nv">ignoreHiddenFiles: </span><span class="kc">false</span>
+          <span class="nv">next: </span><span class="nf">(err,outList) -&gt;</span>
+            <span class="nx">balUtil</span><span class="p">.</span><span class="nx">scandir</span><span class="p">(</span>
+              <span class="nv">path: </span><span class="nx">outExpectedPath</span>
+              <span class="nv">readFiles: </span><span class="kc">true</span>
+              <span class="nv">ignoreHiddenFiles: </span><span class="kc">false</span>
+              <span class="nv">next: </span><span class="nf">(err,outExpectedList) -&gt;</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>check we have the same files</p></div></div><div class="code"><div class="wrapper">                <span class="nx">expect</span><span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">difference</span><span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">outList</span><span class="p">),</span><span class="nx">_</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">outExpectedList</span><span class="p">))).</span><span class="nx">to</span><span class="p">.</span><span class="nx">be</span><span class="p">.</span><span class="nx">empty</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>check the contents of those files match</p></div></div><div class="code"><div class="wrapper">                <span class="k">for</span> <span class="k">own</span> <span class="nx">key</span><span class="p">,</span><span class="nx">actual</span> <span class="k">of</span> <span class="nx">outList</span>
+                  <span class="nv">expected = </span><span class="nx">outExpectedList</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span>
+                  <span class="nx">testMarkup</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span><span class="nx">actual</span><span class="p">,</span><span class="nx">expected</span><span class="p">)</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>done with same file check
+start the markup tests</p></div></div><div class="code"><div class="wrapper">                <span class="nx">done</span><span class="p">()</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="nx">test</span> <span class="s">&#39;ignored &quot;ignored&quot; documents&quot;&#39;</span><span class="p">,</span> <span class="nf">(done) -&gt;</span>
+      <span class="nx">balUtil</span><span class="p">.</span><span class="nx">exists</span> <span class="s">&quot;</span><span class="si">#{</span><span class="nx">outPath</span><span class="si">}</span><span class="s">/ignored.html&quot;</span><span class="p">,</span> <span class="nf">(exists) -&gt;</span>
+        <span class="nx">expect</span><span class="p">(</span><span class="nx">exists</span><span class="p">).</span><span class="nx">to</span><span class="p">.</span><span class="nx">be</span><span class="p">.</span><span class="nx">false</span>
+        <span class="nx">done</span><span class="p">()</span>
+
+    <span class="nx">test</span> <span class="s">&#39;ignored common patterns documents&quot;&#39;</span><span class="p">,</span> <span class="nf">(done) -&gt;</span>
+      <span class="nx">balUtil</span><span class="p">.</span><span class="nx">exists</span> <span class="s">&quot;</span><span class="si">#{</span><span class="nx">outPath</span><span class="si">}</span><span class="s">/.svn&quot;</span><span class="p">,</span> <span class="nf">(exists) -&gt;</span>
+        <span class="nx">expect</span><span class="p">(</span><span class="nx">exists</span><span class="p">).</span><span class="nx">to</span><span class="p">.</span><span class="nx">be</span><span class="p">.</span><span class="nx">false</span>
+        <span class="nx">done</span><span class="p">()</span>
+
+  <span class="nx">suite</span> <span class="s">&#39;server&#39;</span><span class="p">,</span> <span class="nf">(suite,test) -&gt;</span>
+
+    <span class="nx">test</span> <span class="s">&#39;server action&#39;</span><span class="p">,</span> <span class="nf">(done) -&gt;</span>
+      <span class="nx">docpad</span><span class="p">.</span><span class="nx">action</span> <span class="s">&#39;server&#39;</span><span class="p">,</span> <span class="nf">(err) -&gt;</span>
+        <span class="nx">done</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+
+    <span class="nx">test</span> <span class="s">&#39;served generated documents&#39;</span><span class="p">,</span> <span class="nf">(done) -&gt;</span>
+      <span class="nx">request</span> <span class="s">&quot;</span><span class="si">#{</span><span class="nx">baseUrl</span><span class="si">}</span><span class="s">/html.html&quot;</span><span class="p">,</span> <span class="nf">(err,response,actual) -&gt;</span>
+        <span class="k">return</span> <span class="nx">done</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>  <span class="k">if</span> <span class="nx">err</span>
+        <span class="nx">balUtil</span><span class="p">.</span><span class="nx">readFile</span> <span class="s">&quot;</span><span class="si">#{</span><span class="nx">outExpectedPath</span><span class="si">}</span><span class="s">/html.html&quot;</span><span class="p">,</span> <span class="nf">(err,expected) -&gt;</span>
+          <span class="k">return</span> <span class="nx">done</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>  <span class="k">if</span> <span class="nx">err</span>
+          <span class="nx">expect</span><span class="p">(</span><span class="nx">actual</span><span class="p">.</span><span class="nx">toString</span><span class="p">().</span><span class="nx">trim</span><span class="p">()).</span><span class="nx">to</span><span class="p">.</span><span class="nx">be</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">expected</span><span class="p">.</span><span class="nx">toString</span><span class="p">().</span><span class="nx">trim</span><span class="p">())</span>
+          <span class="nx">done</span><span class="p">()</span>
+
+    <span class="nx">test</span> <span class="s">&#39;served custom urls&#39;</span><span class="p">,</span> <span class="nf">(done) -&gt;</span>
+      <span class="nx">request</span> <span class="s">&quot;</span><span class="si">#{</span><span class="nx">baseUrl</span><span class="si">}</span><span class="s">/my-custom-url&quot;</span><span class="p">,</span> <span class="nf">(err,response,actual) -&gt;</span>
+        <span class="k">return</span> <span class="nx">done</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>  <span class="k">if</span> <span class="nx">err</span>
+        <span class="nx">balUtil</span><span class="p">.</span><span class="nx">readFile</span> <span class="s">&quot;</span><span class="si">#{</span><span class="nx">outExpectedPath</span><span class="si">}</span><span class="s">/custom-url.html&quot;</span><span class="p">,</span> <span class="nf">(err,expected) -&gt;</span>
+          <span class="k">return</span> <span class="nx">done</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>  <span class="k">if</span> <span class="nx">err</span>
+          <span class="nx">expect</span><span class="p">(</span><span class="nx">actual</span><span class="p">.</span><span class="nx">toString</span><span class="p">().</span><span class="nx">trim</span><span class="p">()).</span><span class="nx">to</span><span class="p">.</span><span class="nx">be</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">expected</span><span class="p">.</span><span class="nx">toString</span><span class="p">().</span><span class="nx">trim</span><span class="p">())</span>
+          <span class="nx">done</span><span class="p">()</span>
+
+    <span class="nx">test</span> <span class="s">&#39;served dynamic documents - part 1/2&#39;</span><span class="p">,</span> <span class="nf">(done) -&gt;</span>
+      <span class="nx">request</span> <span class="s">&quot;</span><span class="si">#{</span><span class="nx">baseUrl</span><span class="si">}</span><span class="s">/dynamic.html?name=ben&quot;</span><span class="p">,</span> <span class="nf">(err,response,actual) -&gt;</span>
+        <span class="k">return</span> <span class="nx">done</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>  <span class="k">if</span> <span class="nx">err</span>
+        <span class="nv">expected = </span><span class="s">&#39;hi ben&#39;</span>
+        <span class="nx">expect</span><span class="p">(</span><span class="nx">actual</span><span class="p">.</span><span class="nx">toString</span><span class="p">().</span><span class="nx">trim</span><span class="p">()).</span><span class="nx">to</span><span class="p">.</span><span class="nx">be</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">expected</span><span class="p">)</span>
+        <span class="nx">done</span><span class="p">()</span>
+
+    <span class="nx">test</span> <span class="s">&#39;served dynamic documents - part 2/2&#39;</span><span class="p">,</span> <span class="nf">(done) -&gt;</span>
+      <span class="nx">request</span> <span class="s">&quot;</span><span class="si">#{</span><span class="nx">baseUrl</span><span class="si">}</span><span class="s">/dynamic.html?name=joe&quot;</span><span class="p">,</span> <span class="nf">(err,response,actual) -&gt;</span>
+        <span class="k">return</span> <span class="nx">done</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>  <span class="k">if</span> <span class="nx">err</span>
+        <span class="nv">expected = </span><span class="s">&#39;hi joe&#39;</span>
+        <span class="nx">expect</span><span class="p">(</span><span class="nx">actual</span><span class="p">.</span><span class="nx">toString</span><span class="p">().</span><span class="nx">trim</span><span class="p">()).</span><span class="nx">to</span><span class="p">.</span><span class="nx">be</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">expected</span><span class="p">)</span>
+        <span class="nx">done</span><span class="p">()</span>
+
+  <span class="nx">test</span> <span class="s">&#39;completed&#39;</span><span class="p">,</span> <span class="nf">(done) -&gt;</span>
+    <span class="nx">done</span><span class="p">()</span>
+    <span class="nx">process</span><span class="p">.</span><span class="nx">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div></div></div></div></body></html>

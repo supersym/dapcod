@@ -1,0 +1,70 @@
+<!DOCTYPE html><html lang="en"><head><title>src/test/api.test</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../../"><meta name="groc-document-path" content="src/test/api.test"><meta name="groc-project-path" content="src/test/api.test.coffee"><link rel="stylesheet" type="text/css" media="all" href="../../assets/style.css"><script type="text/javascript" src="../../assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/test/api.test.coffee</div></div><div id="document"><div class="segment"><div class="comments"><div class="wrapper"><p>RequirestestServer</p></div></div><div class="code"><div class="wrapper"><span class="nv">balUtil = </span><span class="nx">require</span><span class="p">(</span><span class="s">&#39;bal-util&#39;</span><span class="p">)</span>
+<span class="nv">chai = </span><span class="nx">require</span><span class="p">(</span><span class="s">&#39;chai&#39;</span><span class="p">)</span>
+<span class="nv">expect = </span><span class="nx">chai</span><span class="p">.</span><span class="nx">expect</span>
+<span class="nv">joe = </span><span class="nx">require</span><span class="p">(</span><span class="s">&#39;joe&#39;</span><span class="p">)</span>
+<span class="nv">_ = </span><span class="nx">require</span><span class="p">(</span><span class="s">&#39;underscore&#39;</span><span class="p">)</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><hr />
+
+<p>Configuration</p></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Vars</p></div></div><div class="code"><div class="wrapper"><span class="nv">docpadPath = </span><span class="nx">__dirname</span><span class="o">+</span><span class="s">&#39;/../..&#39;</span>
+<span class="nv">rootPath = </span><span class="nx">docpadPath</span><span class="o">+</span><span class="s">&#39;/test&#39;</span>
+<span class="nv">renderPath = </span><span class="nx">rootPath</span><span class="o">+</span><span class="s">&#39;/render&#39;</span>
+<span class="nv">expectPath = </span><span class="nx">rootPath</span><span class="o">+</span><span class="s">&#39;/render-expected&#39;</span>
+<span class="nv">cliPath = </span><span class="nx">docpadPath</span><span class="o">+</span><span class="s">&#39;/bin/docpad&#39;</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Configure DocPad</p></div></div><div class="code"><div class="wrapper"><span class="nv">docpadConfig =</span>
+  <span class="nv">growl: </span><span class="kc">false</span>
+  <span class="nv">port: </span><span class="mi">9780</span>
+  <span class="nv">rootPath: </span><span class="nx">rootPath</span>
+  <span class="nv">logLevel: </span><span class="k">if</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">TRAVIS_NODE_VERSION</span><span class="o">?</span> <span class="k">then</span> <span class="mi">7</span> <span class="k">else</span> <span class="mi">5</span>
+  <span class="nv">skipUnsupportedPlugins: </span><span class="kc">false</span>
+  <span class="nv">catchExceptions: </span><span class="kc">false</span>
+  <span class="nv">environments:</span>
+    <span class="nv">development:</span>
+      <span class="nv">a: </span><span class="s">&#39;instanceConfig&#39;</span>
+      <span class="nv">b: </span><span class="s">&#39;instanceConfig&#39;</span>
+      <span class="nv">templateData:</span>
+        <span class="nv">a: </span><span class="s">&#39;instanceConfig&#39;</span>
+        <span class="nv">b: </span><span class="s">&#39;instanceConfig&#39;</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Fail on an uncaught error</p></div></div><div class="code"><div class="wrapper"><span class="nx">process</span><span class="p">.</span><span class="nx">on</span> <span class="s">&#39;uncaughtException&#39;</span><span class="p">,</span> <span class="nf">(err) -&gt;</span>
+  <span class="k">throw</span> <span class="nx">err</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Local globals</p></div></div><div class="code"><div class="wrapper"><span class="nv">docpad = </span><span class="kc">null</span>
+<span class="nv">logger = </span><span class="kc">null</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><hr />
+
+<p>Tests</p></div></div><div class="code"><div class="wrapper"><span class="nx">joe</span><span class="p">.</span><span class="nx">suite</span> <span class="s">&#39;docpad-api&#39;</span><span class="p">,</span> <span class="nf">(suite,test) -&gt;</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Create a DocPad Instance</p></div></div><div class="code"><div class="wrapper">  <span class="nx">test</span> <span class="s">&#39;createInstance&#39;</span><span class="p">,</span> <span class="nf">(done) -&gt;</span>
+    <span class="nv">docpad = </span><span class="nx">require</span><span class="p">(</span><span class="nx">__dirname</span><span class="o">+</span><span class="s">&#39;/../main&#39;</span><span class="p">).</span><span class="nx">createInstance</span><span class="p">(</span><span class="nx">docpadConfig</span><span class="p">,</span><span class="nx">done</span><span class="p">)</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Render some input</p></div></div><div class="code"><div class="wrapper">  <span class="nx">suite</span> <span class="s">&#39;render&#39;</span><span class="p">,</span> <span class="nf">(suite,test) -&gt;</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Check rendering stdin inputs</p></div></div><div class="code"><div class="wrapper">    <span class="nv">inputs = </span><span class="p">[</span>
+      <span class="p">{</span>
+        <span class="nv">testname: </span><span class="s">&#39;markdown without extension&#39;</span>
+        <span class="nv">filename: </span><span class="s">&#39;&#39;</span>
+        <span class="nv">stdin: </span><span class="s">&#39;*awesome*&#39;</span>
+        <span class="nv">stdout: </span><span class="s">&#39;*awesome*&#39;</span>
+      <span class="p">}</span>
+      <span class="p">{</span>
+        <span class="nv">testname: </span><span class="s">&#39;markdown with extension as filename&#39;</span>
+        <span class="nv">filename: </span><span class="s">&#39;markdown&#39;</span>
+        <span class="nv">stdin: </span><span class="s">&#39;*awesome*&#39;</span>
+        <span class="nv">stdout: </span><span class="s">&#39;&lt;p&gt;&lt;em&gt;awesome&lt;/em&gt;&lt;/p&gt;&#39;</span>
+      <span class="p">}</span>
+      <span class="p">{</span>
+        <span class="nv">testname: </span><span class="s">&#39;markdown with extension&#39;</span>
+        <span class="nv">filename: </span><span class="s">&#39;example.md&#39;</span>
+        <span class="nv">stdin: </span><span class="s">&#39;*awesome*&#39;</span>
+        <span class="nv">stdout: </span><span class="s">&#39;*awesome*&#39;</span>
+      <span class="p">}</span>
+      <span class="p">{</span>
+        <span class="nv">testname: </span><span class="s">&#39;markdown with extensions&#39;</span>
+        <span class="nv">filename: </span><span class="s">&#39;.html.md&#39;</span>
+        <span class="nv">stdin: </span><span class="s">&#39;*awesome*&#39;</span>
+        <span class="nv">stdout: </span><span class="s">&#39;&lt;p&gt;&lt;em&gt;awesome&lt;/em&gt;&lt;/p&gt;&#39;</span>
+      <span class="p">}</span>
+      <span class="p">{</span>
+        <span class="nv">testname: </span><span class="s">&#39;markdown with filename&#39;</span>
+        <span class="nv">filename: </span><span class="s">&#39;example.html.md&#39;</span>
+        <span class="nv">stdin: </span><span class="s">&#39;*awesome*&#39;</span>
+        <span class="nv">stdout: </span><span class="s">&#39;&lt;p&gt;&lt;em&gt;awesome&lt;/em&gt;&lt;/p&gt;&#39;</span>
+      <span class="p">}</span>
+    <span class="p">]</span>
+    <span class="nx">balUtil</span><span class="p">.</span><span class="nx">each</span> <span class="nx">inputs</span><span class="p">,</span> <span class="nf">(input) -&gt;</span>
+      <span class="nx">test</span> <span class="nx">input</span><span class="p">.</span><span class="nx">testname</span><span class="p">,</span> <span class="nf">(done) -&gt;</span>
+        <span class="nv">opts =</span>
+          <span class="nv">data: </span><span class="nx">input</span><span class="p">.</span><span class="nx">stdin</span>
+          <span class="nv">filename: </span><span class="nx">input</span><span class="p">.</span><span class="nx">filename</span>
+          <span class="nv">renderSingleExtensions: </span><span class="s">&#39;auto&#39;</span>
+        <span class="nx">docpad</span><span class="p">.</span><span class="nx">action</span> <span class="s">&#39;render&#39;</span><span class="p">,</span> <span class="nx">opts</span><span class="p">,</span> <span class="nf">(err,result) -&gt;</span>
+          <span class="k">return</span> <span class="nx">done</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>  <span class="k">if</span> <span class="nx">err</span>
+          <span class="nx">expect</span><span class="p">(</span><span class="nx">result</span><span class="p">.</span><span class="nx">trim</span><span class="p">()).</span><span class="nx">to</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">input</span><span class="p">.</span><span class="nx">stdout</span><span class="p">)</span>
+          <span class="nx">done</span><span class="p">()</span></div></div></div></div></body></html>
