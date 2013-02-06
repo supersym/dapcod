@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- DocPad layout without helpers or configuration, only native functions included -->
+  <meta charset="utf-8" />
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <title>Experimental</title>
+  <meta name="viewport" content="width=device-width" />
+  <%- @getBlock('meta').toHTML() %>
+
+</head>
+<body>
+
+h1 Layout default
+
+<%- @content %>
+
+  <%- @getBlock('scripts').add(["/script.js"]).toHTML() %>
+
+</body>
+</html>
